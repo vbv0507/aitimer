@@ -78,6 +78,15 @@ app.get('/planner', protect, async (req, res) => {
 });
 app.get('/calendar', protect, (req, res) => res.render('calendar', { title: 'Calendar', user: req.user }));
 
+app.get('/focus', protect, async (req, res) => {
+    const tasks = await Task.find({ userId: req.user._id, status: { $in: ['Pending', 'Delayed'] } });
+    res.render('focus', { title: 'Focus Mode', user: req.user, tasks });
+});
+
+app.get('/settings', protect, (req, res) => {
+    res.render('settings', { title: 'Settings & Integrations', user: req.user });
+});
+
 app.get('/analytics', protect, async (req, res) => {
     const tasks = await Task.find({ userId: req.user._id });
     const completed = tasks.filter(t => t.status === 'Completed').length;
