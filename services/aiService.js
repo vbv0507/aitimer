@@ -6,7 +6,7 @@ async function callGrokAPI(prompt, systemPrompt = "You are a helpful AI.", jsonM
     }
 
     const payload = {
-        model: "grok-2-latest",
+        model: "grok-2",
         messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: prompt }
