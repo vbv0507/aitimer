@@ -1,12 +1,12 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-async function callGrokAPI(prompt, systemPrompt = "You are a helpful AI.", jsonMode = false) {
+async function callGroqAPI(prompt, systemPrompt = "You are a helpful AI.", jsonMode = false) {
     if (!process.env.GROQ_API_KEY) {
         throw new Error("GROQ_API_KEY is missing for fallback.");
     }
 
     const payload = {
-        model: "grok-2",
+        model: "llama-3.3-70b-versatile",
         messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: prompt }
@@ -17,7 +17,7 @@ async function callGrokAPI(prompt, systemPrompt = "You are a helpful AI.", jsonM
         payload.response_format = { type: "json_object" };
     }
 
-    const response = await fetch("https://api.x.ai/v1/chat/completions", {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -28,7 +28,7 @@ async function callGrokAPI(prompt, systemPrompt = "You are a helpful AI.", jsonM
 
     if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Grok API Error: ${response.status} - ${errorText}`);
+        throw new Error(`Groq API Error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
@@ -63,7 +63,7 @@ async function generateAIInsights(tasks, schedule) {
     } catch (error) {
         console.error("Gemini API Error, falling back to Grok:", error.message);
         try {
-            return await callGrokAPI(prompt, "You are a helpful AI Time Management Assistant. Keep it natural, direct, and under 50 words.");
+            return await callGroqAPI(prompt, "You are a helpful AI Time Management Assistant. Keep it natural, direct, and under 50 words.");
         } catch (grokError) {
             console.error("Grok Fallback Error:", grokError.message);
             return "You have " + tasks.length + " pending tasks. Have a productive day!";
@@ -105,7 +105,7 @@ async function parseTaskFromText(text) {
     } catch (error) {
         console.error("Gemini Parsing Error, falling back to Grok:", error.message);
         try {
-            let response = await callGrokAPI(prompt, "You are a task parsing AI. Return ONLY a raw JSON object with no markdown.", true);
+            let response = await callGroqAPI(prompt, "You are a task parsing AI. Return ONLY a raw JSON object with no markdown.", true);
             if (response.startsWith('```json')) {
                 response = response.replace(/```json/g, '').replace(/```/g, '').trim();
             } else if (response.startsWith('```')) {
@@ -194,7 +194,7 @@ Instructions:
         console.error("Agentic Scheduling Error, falling back to Grok:", error.message);
         try {
             const fallbackPrompt = prompt + "\n\nRETURN ONLY A JSON OBJECT with a single key 'timeline' containing the array of scheduled items. Do not include markdown code blocks, just raw JSON.";
-            let response = await callGrokAPI(fallbackPrompt, "You are an expert executive assistant AI. Return strictly valid JSON.", true);
+            let response = await callGroqAPI(fallbackPrompt, "You are an expert executive assistant AI. Return strictly valid JSON.", true);
             if (response.startsWith('```json')) {
                 response = response.replace(/```json/g, '').replace(/```/g, '').trim();
             } else if (response.startsWith('```')) {
