@@ -6,31 +6,31 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Google Calendar Integration -->
-        <div class="glass p-8 border-t-4 border-t-emerald-500" data-aos="fade-up" data-aos-delay="100">
-            <h3 class="text-xl font-semibold mb-4 flex items-center text-emerald-600 dark:text-emerald-400">
-                <i class="fa-brands fa-google mr-3 text-2xl"></i> Google Calendar
+        <div class="glass p-8" data-aos="fade-up" data-aos-delay="100">
+            <h3 class="text-xl font-semibold mb-4 flex items-center text-slate-800 dark:text-white">
+                <i class="fa-brands fa-google mr-3 text-2xl text-slate-400"></i> Google Calendar
             </h3>
             <p class="text-slate-600 dark:text-slate-300 text-sm mb-6">
                 Connect your Google Account to let the AI automatically schedule around your existing meetings and sync your plans.
             </p>
             
-            <div class="bg-slate-50 dark:bg-slate-700/50 p-6 rounded-xl border border-slate-200 dark:border-slate-600 flex flex-col items-center text-center">
+            <div class="bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-100 dark:border-slate-700 flex flex-col items-center text-center">
                 <% if (user.googleId) { %>
-                    <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mb-4">
+                    <div class="w-16 h-16 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full flex items-center justify-center mb-4">
                         <i class="fa-solid fa-check text-3xl"></i>
                     </div>
                     <p class="font-medium text-slate-800 dark:text-white mb-1">Account Connected</p>
                     <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Your calendar is actively syncing.</p>
-                    <button onclick="syncCalendar()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-lg shadow-md transition-colors text-sm font-medium w-full max-w-xs flex items-center justify-center">
+                    <button onclick="syncCalendar()" class="bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-200 text-white dark:text-slate-900 px-6 py-2.5 rounded-lg shadow-sm transition-colors text-sm font-medium w-full max-w-xs flex items-center justify-center">
                         <i class="fa-solid fa-rotate mr-2"></i> Force Sync Now
                     </button>
                 <% } else { %>
-                    <div class="w-16 h-16 bg-slate-200 dark:bg-slate-600 text-slate-400 dark:text-slate-500 rounded-full flex items-center justify-center mb-4">
+                    <div class="w-16 h-16 bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 rounded-full flex items-center justify-center mb-4">
                         <i class="fa-solid fa-calendar-xmark text-3xl"></i>
                     </div>
                     <p class="font-medium text-slate-800 dark:text-white mb-1">Not Connected</p>
                     <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">Connect to enable smart scheduling.</p>
-                    <a href="/api/auth/google" class="inline-flex items-center justify-center bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-white border border-slate-300 dark:border-slate-600 px-6 py-2.5 rounded-lg shadow-sm transition-colors text-sm font-medium w-full max-w-xs">
+                    <a href="/api/auth/google" class="inline-flex items-center justify-center bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 px-6 py-2.5 rounded-lg shadow-sm transition-colors text-sm font-medium w-full max-w-xs">
                         <img src="https://developers.google.com/identity/images/g-logo.png" class="w-5 h-5 mr-3" alt="Google">
                         Connect with Google
                     </a>
@@ -39,9 +39,9 @@
         </div>
 
         <!-- Working Hours Preferences -->
-        <div class="glass p-8 border-t-4 border-t-indigo-500" data-aos="fade-up" data-aos-delay="200">
-            <h3 class="text-xl font-semibold mb-4 flex items-center text-indigo-600 dark:text-indigo-400">
-                <i class="fa-solid fa-briefcase mr-3 text-2xl"></i> Working Hours
+        <div class="glass p-8" data-aos="fade-up" data-aos-delay="200">
+            <h3 class="text-xl font-semibold mb-4 flex items-center text-slate-800 dark:text-white">
+                <i class="fa-solid fa-briefcase mr-3 text-2xl text-slate-400"></i> Working Hours
             </h3>
             <p class="text-slate-600 dark:text-slate-300 text-sm mb-6">
                 Tell the AI when you usually work so it knows when to schedule tasks.
@@ -51,25 +51,25 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Start Time</label>
-                        <input type="time" name="workingHoursStart" value="<%= user.workingHours?.start || '09:00' %>" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <input type="time" name="workingHoursStart" value="<%= user.workingHours?.start || '09:00' %>" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-800 dark:text-white focus:outline-none focus:border-slate-400 transition-colors shadow-sm">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">End Time</label>
-                        <input type="time" name="workingHoursEnd" value="<%= user.workingHours?.end || '17:00' %>" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <input type="time" name="workingHoursEnd" value="<%= user.workingHours?.end || '17:00' %>" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-800 dark:text-white focus:outline-none focus:border-slate-400 transition-colors shadow-sm">
                     </div>
                 </div>
                 
                 <div>
                     <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Lunch Break Start</label>
-                    <input type="time" name="lunchBreakStart" value="<%= user.settings?.lunchBreakStart || '12:00' %>" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input type="time" name="lunchBreakStart" value="<%= user.settings?.lunchBreakStart || '12:00' %>" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-800 dark:text-white focus:outline-none focus:border-slate-400 transition-colors shadow-sm">
                 </div>
 
                 <div>
                     <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Lunch Duration (mins)</label>
-                    <input type="number" name="lunchBreakDuration" value="<%= user.settings?.lunchBreakDuration || 60 %>" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input type="number" name="lunchBreakDuration" value="<%= user.settings?.lunchBreakDuration || 60 %>" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-800 dark:text-white focus:outline-none focus:border-slate-400 transition-colors shadow-sm">
                 </div>
                 
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg shadow transition-colors font-medium mt-2">
+                <button type="submit" class="w-full bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-200 text-white dark:text-slate-900 px-4 py-2.5 rounded-lg shadow-sm transition-colors font-medium mt-2">
                     Save Preferences
                 </button>
             </form>

@@ -1,24 +1,30 @@
 <div class="max-w-2xl mx-auto space-y-6">
     <div class="glass p-8 text-center" data-aos="fade-up">
-        <h2 class="text-3xl font-bold mb-2 flex items-center justify-center text-amber-600 dark:text-amber-400">
-            <i class="fa-solid fa-stopwatch mr-3"></i> Focus Mode
+        <h2 class="text-3xl font-bold mb-2 flex items-center justify-center text-slate-800 dark:text-white">
+            <i class="fa-solid fa-stopwatch mr-3 text-slate-400"></i> Focus Mode
         </h2>
         <p class="text-slate-500 dark:text-slate-400 mb-8">Select a task and start a distraction-free Pomodoro session.</p>
 
-        <div class="bg-slate-50 dark:bg-slate-700/50 p-8 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col justify-center items-center shadow-inner">
-            <div id="pomodoro-display" class="text-7xl font-bold mb-8 font-mono text-slate-800 dark:text-white tracking-widest drop-shadow-md">25:00</div>
+        <div class="bg-slate-50 dark:bg-slate-800 p-8 rounded-2xl border border-slate-100 dark:border-slate-700 flex flex-col justify-center items-center shadow-inner">
+            <div id="pomodoro-display" class="text-7xl font-bold mb-8 font-mono text-slate-800 dark:text-white tracking-widest drop-shadow-sm">25:00</div>
             
             <div class="w-full max-w-sm space-y-6">
-                <select id="pomodoro-task" class="w-full bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:border-amber-500 transition-colors shadow-sm">
+                <select id="pomodoro-task" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:border-slate-400 transition-colors shadow-sm">
                     <option value="">Select task to focus on...</option>
                     <% tasks.forEach(task => { %>
                         <option value="<%= task._id %>"><%= task.title %> (<%= task.estimatedDuration %>m)</option>
                     <% }) %>
                 </select>
 
+                <div class="flex items-center space-x-3">
+                    <label class="text-slate-600 dark:text-slate-400 font-medium">Duration:</label>
+                    <input type="number" id="pomodoro-duration" value="25" min="1" max="120" onchange="updateCustomDuration()" class="w-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:border-slate-400 transition-colors shadow-sm text-center">
+                    <span class="text-slate-500 dark:text-slate-500 text-sm">minutes</span>
+                </div>
+
                 <div class="flex space-x-4 justify-center">
-                    <button id="pomodoro-start" onclick="startPomodoro()" class="bg-amber-600 hover:bg-amber-500 text-white px-8 py-3 rounded-xl shadow-lg transition-all hover:-translate-y-1 text-lg font-semibold w-40">Start</button>
-                    <button id="pomodoro-reset" onclick="resetPomodoro()" class="bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 text-slate-800 dark:text-white px-8 py-3 rounded-xl shadow transition-all text-lg font-semibold w-40">Reset</button>
+                    <button id="pomodoro-start" onclick="startPomodoro()" class="bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-200 text-white dark:text-slate-900 px-8 py-3 rounded-xl shadow-sm transition-all hover:-translate-y-1 text-lg font-semibold w-40">Start</button>
+                    <button id="pomodoro-reset" onclick="resetPomodoro()" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 px-8 py-3 rounded-xl shadow-sm transition-all text-lg font-semibold w-40">Reset</button>
                 </div>
             </div>
         </div>
@@ -27,8 +33,19 @@
 
 <script>
     let pomodoroInterval;
-    let pomodoroTime = 25 * 60; // 25 mins
+    let customMinutes = 25;
+    let pomodoroTime = customMinutes * 60;
     let isPomodoroRunning = false;
+
+    function updateCustomDuration() {
+        if(isPomodoroRunning) return; // don't change if running
+        const val = parseInt(document.getElementById('pomodoro-duration').value);
+        if(val && val > 0) {
+            customMinutes = val;
+            pomodoroTime = customMinutes * 60;
+            updatePomodoroDisplay();
+        }
+    }
 
     function updatePomodoroDisplay() {
         const mins = Math.floor(pomodoroTime / 60).toString().padStart(2, '0');
@@ -64,7 +81,7 @@
     function resetPomodoro() {
         clearInterval(pomodoroInterval);
         isPomodoroRunning = false;
-        pomodoroTime = 25 * 60;
+        pomodoroTime = customMinutes * 60;
         document.getElementById('pomodoro-start').innerText = 'Start';
         updatePomodoroDisplay();
     }
@@ -83,7 +100,7 @@
             await fetch(`/api/tasks/${taskId}/focus`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ minutes: 25 })
+                body: JSON.stringify({ minutes: customMinutes })
             });
         } catch(e) {
             console.error("Failed to log focus time");

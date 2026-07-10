@@ -14,7 +14,7 @@
                         <i class="fa-solid fa-mug-hot text-2xl text-slate-400"></i>
                     </div>
                     <p class="text-slate-500 dark:text-slate-400 font-medium">Your day is completely open.</p>
-                    <a href="/planner" class="mt-4 inline-flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg transition-colors font-medium shadow-sm">
+                    <a href="/planner" class="mt-4 inline-flex items-center bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-200 text-white dark:text-slate-900 px-6 py-2.5 rounded-lg transition-colors font-medium shadow-sm">
                         <i class="fa-solid fa-plus mr-2"></i> Add Tasks
                     </a>
                 </div>
@@ -23,17 +23,17 @@
                     <% schedule.timeline.forEach((item, index) => { %>
                         <div class="relative pl-8">
                             <% if (item.type === 'Lunch') { %>
-                                <div class="absolute -left-3.5 top-1 w-7 h-7 bg-yellow-500 rounded-full border-4 border-white dark:border-slate-900 flex items-center justify-center shadow-sm">
+                                <div class="absolute -left-3.5 top-1 w-7 h-7 bg-slate-400 dark:bg-slate-600 rounded-full border-4 border-white dark:border-slate-900 flex items-center justify-center shadow-sm">
                                     <i class="fa-solid fa-utensils text-[10px] text-white"></i>
                                 </div>
                             <% } else { %>
-                                <div class="absolute -left-3 top-1.5 w-6 h-6 bg-indigo-500 rounded-full border-4 border-white dark:border-slate-900 shadow-sm"></div>
+                                <div class="absolute -left-3 top-1.5 w-6 h-6 bg-slate-800 dark:bg-slate-200 rounded-full border-4 border-white dark:border-slate-900 shadow-sm"></div>
                             <% } %>
                             
-                            <div class="glass p-5 <%= item.type === 'Lunch' ? 'border-l-4 border-l-yellow-500' : 'border-l-4 border-l-indigo-500' %> transition-transform hover:-translate-y-1 shadow-sm">
+                            <div class="glass p-5 <%= item.type === 'Lunch' ? 'border-l-4 border-l-slate-400 dark:border-l-slate-600' : 'border-l-4 border-l-slate-800 dark:border-l-slate-200' %> transition-transform hover:-translate-y-1 shadow-sm">
                                 <div class="flex justify-between items-start">
                                     <div>
-                                        <h3 class="font-bold text-lg <%= item.type === 'Lunch' ? 'text-yellow-600 dark:text-yellow-400' : 'text-slate-800 dark:text-white' %> mb-1"><%= item.title %></h3>
+                                        <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-1"><%= item.title %></h3>
                                         <div class="text-sm font-medium text-slate-500 dark:text-slate-400 flex items-center">
                                             <i class="fa-regular fa-clock mr-1.5 text-slate-400"></i>
                                             <%= new Date(item.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %> - 
@@ -60,11 +60,11 @@
 
     <div class="space-y-6">
         <!-- AI Insights Card -->
-        <div class="glass p-6 border-t-4 border-t-cyan-500" data-aos="fade-up" data-aos-delay="100">
-            <h2 class="text-xl font-semibold mb-4 flex items-center text-cyan-600 dark:text-cyan-400">
-                <i class="fa-solid fa-sparkles mr-2"></i> AI Assistant
+        <div class="glass p-6 border-t-4 border-t-slate-800 dark:border-t-slate-200" data-aos="fade-up" data-aos-delay="100">
+            <h2 class="text-xl font-semibold mb-4 flex items-center text-slate-800 dark:text-white">
+                <i class="fa-solid fa-sparkles mr-2 text-slate-500 dark:text-slate-400"></i> AI Assistant
             </h2>
-            <div class="bg-cyan-50/50 dark:bg-cyan-900/10 p-5 rounded-xl border border-cyan-100 dark:border-cyan-800/30 text-slate-700 dark:text-slate-200 shadow-inner">
+            <div class="bg-slate-50 dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-200 shadow-inner">
                 <p class="text-sm leading-relaxed font-medium"><%= typeof aiInsight !== 'undefined' ? aiInsight : 'Loading AI Insights...' %></p>
             </div>
         </div>
@@ -80,12 +80,12 @@
             %>
             
             <div class="grid grid-cols-2 gap-4">
-                <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded-xl text-center">
-                    <div class="text-3xl font-bold text-indigo-600 dark:text-indigo-400 mb-1"><%= pendingCount %></div>
+                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-center border border-slate-100 dark:border-slate-700">
+                    <div class="text-3xl font-bold text-slate-900 dark:text-white mb-1"><%= pendingCount %></div>
                     <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Pending Tasks</div>
                 </div>
-                <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded-xl text-center">
-                    <div class="text-3xl font-bold text-amber-500 mb-1"><%= totalMins %></div>
+                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-center border border-slate-100 dark:border-slate-700">
+                    <div class="text-3xl font-bold text-slate-900 dark:text-white mb-1"><%= totalMins %></div>
                     <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Est. Minutes</div>
                 </div>
             </div>

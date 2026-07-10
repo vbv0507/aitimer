@@ -12,30 +12,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        slate: {
-                            900: 'var(--slate-900, #0f172a)',
-                            800: 'var(--slate-800, #1e293b)',
-                            700: 'var(--slate-700, #334155)',
-                            600: 'var(--slate-600, #475569)',
-                            400: 'var(--slate-400, #94a3b8)',
-                            100: 'var(--slate-100, #f1f5f9)',
-                        },
-                        indigo: {
-                            600: 'var(--indigo-600, #4f46e5)',
-                            500: 'var(--indigo-500, #6366f1)',
-                            400: 'var(--indigo-400, #818cf8)',
-                        },
-                        emerald: {
-                            600: 'var(--emerald-600, #059669)',
-                            500: 'var(--emerald-500, #10b981)',
-                            400: 'var(--emerald-400, #34d399)',
-                        }
                     }
                 }
             }
@@ -45,36 +26,22 @@
     <style type="text/tailwindcss">
         @layer utilities {
             .glass {
-                @apply bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm rounded-xl;
+                @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl;
             }
-        }
-    </style>
-    <style>
-    <style>
-        html[data-theme="light"] body {
-            --slate-900: #f8fafc;
-            --slate-800: #ffffff;
-            --slate-700: #e2e8f0;
-            --slate-600: #cbd5e1;
-            --slate-400: #64748b;
-            --slate-100: #0f172a;
-            --indigo-600: #4f46e5;
-            --indigo-500: #4338ca;
-            --indigo-400: #3730a3;
         }
     </style>
     
     <script>
-        const savedTheme = localStorage.getItem('app-theme') || 'dark';
-        if (savedTheme !== 'dark') {
-            document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedTheme = localStorage.getItem('app-theme') || 'light';
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
         }
         
         function setTheme(theme) {
             if (theme === 'dark') {
-                document.documentElement.removeAttribute('data-theme');
+                document.documentElement.classList.add('dark');
             } else {
-                document.documentElement.setAttribute('data-theme', theme);
+                document.documentElement.classList.remove('dark');
             }
             localStorage.setItem('app-theme', theme);
         }
@@ -102,7 +69,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 antialiased min-h-screen flex flex-col">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 antialiased min-h-screen flex flex-col">
     
     <%- include('navbar') %>
 
