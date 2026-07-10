@@ -1,0 +1,92 @@
+<div class="max-w-2xl mx-auto space-y-6">
+    <div class="glass p-8 text-center" data-aos="fade-up">
+        <h2 class="text-3xl font-bold mb-2 flex items-center justify-center text-amber-600 dark:text-amber-400">
+            <i class="fa-solid fa-stopwatch mr-3"></i> Focus Mode
+        </h2>
+        <p class="text-slate-500 dark:text-slate-400 mb-8">Select a task and start a distraction-free Pomodoro session.</p>
+
+        <div class="bg-slate-50 dark:bg-slate-700/50 p-8 rounded-2xl border border-slate-200 dark:border-slate-600 flex flex-col justify-center items-center shadow-inner">
+            <div id="pomodoro-display" class="text-7xl font-bold mb-8 font-mono text-slate-800 dark:text-white tracking-widest drop-shadow-md">25:00</div>
+            
+            <div class="w-full max-w-sm space-y-6">
+                <select id="pomodoro-task" class="w-full bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white rounded-xl px-4 py-3 focus:outline-none focus:border-amber-500 transition-colors shadow-sm">
+                    <option value="">Select task to focus on...</option>
+                    <% tasks.forEach(task => { %>
+                        <option value="<%= task._id %>"><%= task.title %> (<%= task.estimatedDuration %>m)</option>
+                    <% }) %>
+                </select>
+
+                <div class="flex space-x-4 justify-center">
+                    <button id="pomodoro-start" onclick="startPomodoro()" class="bg-amber-600 hover:bg-amber-500 text-white px-8 py-3 rounded-xl shadow-lg transition-all hover:-translate-y-1 text-lg font-semibold w-40">Start</button>
+                    <button id="pomodoro-reset" onclick="resetPomodoro()" class="bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 text-slate-800 dark:text-white px-8 py-3 rounded-xl shadow transition-all text-lg font-semibold w-40">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let pomodoroInterval;
+    let pomodoroTime = 25 * 60; // 25 mins
+    let isPomodoroRunning = false;
+
+    function updatePomodoroDisplay() {
+        const mins = Math.floor(pomodoroTime / 60).toString().padStart(2, '0');
+        const secs = (pomodoroTime % 60).toString().padStart(2, '0');
+        document.getElementById('pomodoro-display').innerText = `${mins}:${secs}`;
+    }
+
+    function startPomodoro() {
+        if (isPomodoroRunning) {
+            clearInterval(pomodoroInterval);
+            isPomodoroRunning = false;
+            document.getElementById('pomodoro-start').innerText = 'Resume';
+            return;
+        }
+        
+        isPomodoroRunning = true;
+        document.getElementById('pomodoro-start').innerText = 'Pause';
+        
+        pomodoroInterval = setInterval(() => {
+            pomodoroTime--;
+            updatePomodoroDisplay();
+            
+            if (pomodoroTime <= 0) {
+                clearInterval(pomodoroInterval);
+                isPomodoroRunning = false;
+                document.getElementById('pomodoro-display').innerText = '00:00';
+                playAlarm();
+                logFocusTime();
+            }
+        }, 1000);
+    }
+
+    function resetPomodoro() {
+        clearInterval(pomodoroInterval);
+        isPomodoroRunning = false;
+        pomodoroTime = 25 * 60;
+        document.getElementById('pomodoro-start').innerText = 'Start';
+        updatePomodoroDisplay();
+    }
+
+    function playAlarm() {
+        const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+        audio.play();
+        alert("Pomodoro complete! Great job focusing.");
+    }
+
+    async function logFocusTime() {
+        const taskId = document.getElementById('pomodoro-task').value;
+        if(!taskId) return;
+        
+        try {
+            await fetch(`/api/tasks/${taskId}/focus`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ minutes: 25 })
+            });
+        } catch(e) {
+            console.error("Failed to log focus time");
+        }
+    }
+</script>
