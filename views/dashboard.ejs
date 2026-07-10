@@ -1,0 +1,229 @@
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+        <div class="glass p-6" data-aos="fade-up">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Today's Schedule</h2>
+                <div class="text-slate-400">
+                    <%= new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) %>
+                </div>
+            </div>
+
+            <% if (!schedule || schedule.timeline.length === 0) { %>
+                <div class="text-center py-12">
+                    <div class="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa-solid fa-mug-hot text-2xl text-slate-400"></i>
+                    </div>
+                    <p class="text-slate-500 dark:text-slate-400">Your day is empty. Go to Planner to add tasks.</p>
+                    <a href="/planner" class="mt-4 inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition-colors">Go to Planner</a>
+                </div>
+            <% } else { %>
+                <div class="relative border-l border-slate-700 ml-4 space-y-8 pb-4">
+                    <% schedule.timeline.forEach((item, index) => { %>
+                        <div class="relative pl-8">
+                            <% if (item.type === 'Lunch') { %>
+                                <div class="absolute -left-3 top-1 w-6 h-6 bg-yellow-500 rounded-full border-4 border-slate-900 flex items-center justify-center">
+                                    <i class="fa-solid fa-utensils text-[10px] text-white"></i>
+                                </div>
+                            <% } else { %>
+                                <div class="absolute -left-2.5 top-1.5 w-5 h-5 bg-indigo-500 rounded-full border-4 border-slate-900"></div>
+                            <% } %>
+                            
+                            <div class="glass p-4 <%= item.type === 'Lunch' ? 'border-yellow-500/30' : 'border-indigo-500/30' %> transition-transform hover:-translate-y-1">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-medium text-lg <%= item.type === 'Lunch' ? 'text-yellow-600 dark:text-yellow-400' : 'text-slate-800 dark:text-white' %>"><%= item.title %></h3>
+                                        <div class="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center">
+                                            <i class="fa-regular fa-clock mr-1"></i>
+                                            <%= new Date(item.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %> - 
+                                            <%= new Date(item.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                                        </div>
+                                    </div>
+                                    <% if (item.type === 'Task' && item.taskId) { %>
+                                        <div class="flex space-x-2">
+                                            <% if (item.taskId.status !== 'Completed') { %>
+                                                <button onclick="updateTaskStatus('<%= item.taskId._id %>', 'Completed')" class="text-emerald-400 hover:text-emerald-300" title="Complete"><i class="fa-solid fa-check-circle text-xl"></i></button>
+                                            <% } %>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="space-y-6">
+        <div class="glass p-6 border-cyan-500/30" data-aos="fade-up" data-aos-delay="100">
+            <h2 class="text-xl font-semibold mb-4 flex items-center text-cyan-600 dark:text-cyan-400">
+                <i class="fa-solid fa-sparkles mr-2"></i> AI Insights
+            </h2>
+            <div class="space-y-3">
+                <div class="bg-slate-50 dark:bg-slate-700 p-3 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200">
+                    <p class="text-sm"><%= typeof aiInsight !== 'undefined' ? aiInsight : 'Loading AI Insights...' %></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass p-6 border-emerald-500/30" data-aos="fade-up" data-aos-delay="150">
+            <h2 class="text-xl font-semibold mb-4 flex items-center text-emerald-600 dark:text-emerald-400">
+                <i class="fa-brands fa-google mr-2"></i> Google Calendar
+            </h2>
+            <div class="space-y-3">
+                <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded-lg border border-slate-200 dark:border-slate-600 flex flex-col justify-center items-center text-center text-slate-700 dark:text-slate-200">
+                    <% if (user.googleId) { %>
+                        <p class="text-sm mb-3">Your Google Calendar is connected.</p>
+                        <button onclick="syncCalendar()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded shadow transition-colors text-sm font-medium w-full max-w-[200px]">
+                            <i class="fa-solid fa-rotate mr-2"></i> Sync Today's Events
+                        </button>
+                    <% } else { %>
+                        <p class="text-sm mb-3">Connect your Google Account to let AI schedule around your existing meetings.</p>
+                        <a href="/api/auth/google" class="inline-block bg-white hover:bg-slate-100 text-slate-800 px-4 py-2 rounded shadow transition-colors text-sm font-medium w-full max-w-[200px]">
+                            <img src="https://developers.google.com/identity/images/g-logo.png" class="w-4 h-4 inline mr-2" alt="Google">
+                            Connect Account
+                        </a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            async function syncCalendar() {
+                try {
+                    const res = await fetch('/api/tasks/sync-calendar', { method: 'POST' });
+                    const data = await res.json();
+                    if(data.success) {
+                        alert(data.message);
+                        window.location.reload();
+                    } else {
+                        alert('Error syncing calendar: ' + data.message);
+                    }
+                } catch(e) {
+                    alert('Error connecting to server.');
+                }
+            }
+        </script>
+
+        <div class="glass p-6 border-amber-500/30" data-aos="fade-up" data-aos-delay="175">
+            <h2 class="text-xl font-semibold mb-4 flex items-center text-amber-600 dark:text-amber-400">
+                <i class="fa-solid fa-stopwatch mr-2"></i> Pomodoro Timer
+            </h2>
+            <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded-lg border border-slate-200 dark:border-slate-600 flex flex-col justify-center items-center text-center">
+                <div id="pomodoro-display" class="text-4xl font-bold mb-4 font-mono text-slate-800 dark:text-white">25:00</div>
+                <div class="flex space-x-3 mb-4">
+                    <button id="pomodoro-start" onclick="startPomodoro()" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded shadow transition-colors text-sm font-medium w-24">Start</button>
+                    <button id="pomodoro-reset" onclick="resetPomodoro()" class="bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 text-slate-800 dark:text-white px-4 py-2 rounded shadow transition-colors text-sm font-medium w-24">Reset</button>
+                </div>
+                <select id="pomodoro-task" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-white text-sm rounded px-3 py-2 focus:outline-none focus:border-amber-500">
+                    <option value="">Select task to focus on...</option>
+                    <% tasks.forEach(task => { %>
+                        <option value="<%= task._id %>"><%= task.title %></option>
+                    <% }) %>
+                </select>
+            </div>
+        </div>
+
+        <script>
+            let pomodoroInterval;
+            let pomodoroTime = 25 * 60; // 25 mins
+            let isPomodoroRunning = false;
+
+            function updatePomodoroDisplay() {
+                const mins = Math.floor(pomodoroTime / 60).toString().padStart(2, '0');
+                const secs = (pomodoroTime % 60).toString().padStart(2, '0');
+                document.getElementById('pomodoro-display').innerText = `${mins}:${secs}`;
+            }
+
+            function startPomodoro() {
+                if (isPomodoroRunning) {
+                    clearInterval(pomodoroInterval);
+                    isPomodoroRunning = false;
+                    document.getElementById('pomodoro-start').innerText = 'Resume';
+                    return;
+                }
+                
+                isPomodoroRunning = true;
+                document.getElementById('pomodoro-start').innerText = 'Pause';
+                
+                pomodoroInterval = setInterval(() => {
+                    pomodoroTime--;
+                    updatePomodoroDisplay();
+                    
+                    if (pomodoroTime <= 0) {
+                        clearInterval(pomodoroInterval);
+                        isPomodoroRunning = false;
+                        document.getElementById('pomodoro-display').innerText = '00:00';
+                        playAlarm();
+                        logFocusTime();
+                    }
+                }, 1000);
+            }
+
+            function resetPomodoro() {
+                clearInterval(pomodoroInterval);
+                isPomodoroRunning = false;
+                pomodoroTime = 25 * 60;
+                document.getElementById('pomodoro-start').innerText = 'Start';
+                updatePomodoroDisplay();
+            }
+
+            function playAlarm() {
+                const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+                audio.play();
+                alert("Pomodoro complete! Great job focusing.");
+            }
+
+            async function logFocusTime() {
+                const taskId = document.getElementById('pomodoro-task').value;
+                if(!taskId) return;
+                
+                try {
+                    await fetch(`/api/tasks/${taskId}/focus`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ minutes: 25 })
+                    });
+                } catch(e) {
+                    console.error("Failed to log focus time");
+                }
+            }
+        </script>
+
+        <div class="glass p-6" data-aos="fade-up" data-aos-delay="200">
+            <h2 class="text-xl font-semibold mb-4">Pending Tasks</h2>
+            <div class="space-y-3 max-h-[50vh] overflow-y-auto pr-2">
+                <% tasks.forEach(task => { %>
+                    <div class="bg-slate-50 dark:bg-slate-700 p-3 rounded-lg border-l-2 text-slate-800 dark:text-slate-100 <%= task.priority === 'Critical' ? 'border-red-500' : task.priority === 'High' ? 'border-orange-500' : 'border-blue-500' %>">
+                        <div class="flex justify-between">
+                            <h4 class="font-medium text-sm"><%= task.title %></h4>
+                            <span class="text-xs text-slate-500 dark:text-slate-400"><%= task.estimatedDuration %>m</span>
+                        </div>
+                    </div>
+                <% }) %>
+                <% if(tasks.length === 0) { %>
+                    <p class="text-sm text-slate-400">No pending tasks.</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function updateTaskStatus(taskId, status) {
+    try {
+        const res = await fetch(`/api/tasks/${taskId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status })
+        });
+        if (res.ok) {
+            window.location.reload();
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+</script>

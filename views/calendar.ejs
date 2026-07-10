@@ -1,0 +1,61 @@
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
+<div class="glass p-6" data-aos="fade-up">
+    <div id="calendar" class="w-full bg-slate-800/30 rounded-lg p-4"></div>
+</div>
+
+<style>
+    /* Customizing FullCalendar for Dark Mode */
+    .fc-theme-standard td, .fc-theme-standard th {
+        border-color: #334155;
+    }
+    .fc-theme-standard .fc-scrollgrid {
+        border-color: #334155;
+    }
+    .fc-col-header-cell-cushion, .fc-daygrid-day-number {
+        color: #e2e8f0;
+        text-decoration: none;
+    }
+    .fc-toolbar-title {
+        color: #f8fafc;
+    }
+    .fc-button {
+        background-color: #4f46e5 !important;
+        border-color: #4338ca !important;
+    }
+    .fc-button:hover {
+        background-color: #4338ca !important;
+    }
+    .fc-event {
+        border: none;
+        padding: 2px 4px;
+        border-radius: 4px;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridDay',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            height: 700,
+            slotMinTime: '06:00:00',
+            slotMaxTime: '22:00:00',
+            events: '/api/schedules',
+            editable: true,
+            droppable: true,
+            eventDrop: function(info) {
+                // Future update: call API to update task schedule or lock it
+                alert(`Task ${info.event.title} moved to ${info.event.start.toLocaleTimeString()}`);
+            }
+        });
+
+        calendar.render();
+    });
+</script>

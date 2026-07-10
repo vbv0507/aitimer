@@ -1,0 +1,148 @@
+<div class="max-w-3xl mx-auto" data-aos="fade-up">
+    <div class="glass p-8">
+        <h2 class="text-3xl font-semibold mb-2">Plan Your Day</h2>
+        <p class="text-slate-500 dark:text-slate-400 mb-8">Add a new task. The AI will automatically schedule it for you.</p>
+
+        <form id="taskForm" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">Task Title *</label>
+                <input type="text" id="title" required class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors placeholder-slate-400 dark:placeholder-slate-500" placeholder="e.g. Prepare Presentation">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">Estimated Duration (mins) *</label>
+                    <input type="number" id="estimatedDuration" required min="5" value="30" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">Priority *</label>
+                    <select id="priority" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors appearance-none">
+                        <option value="Low">Low</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="High">High</option>
+                        <option value="Critical">Critical</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">Category</label>
+                    <input type="text" id="category" value="Work" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">Deadline (Optional)</label>
+                    <input type="datetime-local" id="deadline" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors color-scheme-dark">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">Depends On (Optional)</label>
+                    <select id="dependsOn" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                        <option value="">None</option>
+                        <% tasks.forEach(task => { %>
+                            <option value="<%= task._id %>"><%= task.title %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">Recurring Pattern</label>
+                    <select id="recurrencePattern" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors" onchange="toggleDays()">
+                        <option value="none">None (One-time task)</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly (Select days below)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="daysSelector" class="hidden">
+                <label class="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">Select Days</label>
+                <div class="flex flex-wrap gap-2">
+                    <label class="flex items-center space-x-2 text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 p-2 rounded border border-slate-200 dark:border-slate-600"><input type="checkbox" name="recurrenceDays" value="0"><span>Sun</span></label>
+                    <label class="flex items-center space-x-2 text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 p-2 rounded border border-slate-200 dark:border-slate-600"><input type="checkbox" name="recurrenceDays" value="1"><span>Mon</span></label>
+                    <label class="flex items-center space-x-2 text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 p-2 rounded border border-slate-200 dark:border-slate-600"><input type="checkbox" name="recurrenceDays" value="2"><span>Tue</span></label>
+                    <label class="flex items-center space-x-2 text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 p-2 rounded border border-slate-200 dark:border-slate-600"><input type="checkbox" name="recurrenceDays" value="3"><span>Wed</span></label>
+                    <label class="flex items-center space-x-2 text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 p-2 rounded border border-slate-200 dark:border-slate-600"><input type="checkbox" name="recurrenceDays" value="4"><span>Thu</span></label>
+                    <label class="flex items-center space-x-2 text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 p-2 rounded border border-slate-200 dark:border-slate-600"><input type="checkbox" name="recurrenceDays" value="5"><span>Fri</span></label>
+                    <label class="flex items-center space-x-2 text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-700 p-2 rounded border border-slate-200 dark:border-slate-600"><input type="checkbox" name="recurrenceDays" value="6"><span>Sat</span></label>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300">Description</label>
+                <textarea id="description" rows="3" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500 transition-colors"></textarea>
+            </div>
+
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-lg transition-colors shadow flex justify-center items-center">
+                <i class="fa-solid fa-robot mr-2"></i> Add Task & Auto Schedule
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* For webkit browsers to make datetime picker text white */
+    ::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+    }
+</style>
+
+<script>
+function toggleDays() {
+    const pattern = document.getElementById('recurrencePattern').value;
+    const daysSelector = document.getElementById('daysSelector');
+    if (pattern === 'weekly') {
+        daysSelector.classList.remove('hidden');
+    } else {
+        daysSelector.classList.add('hidden');
+    }
+}
+
+document.getElementById('taskForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Get checked days
+    const checkedDays = Array.from(document.querySelectorAll('input[name="recurrenceDays"]:checked')).map(cb => parseInt(cb.value));
+    
+    const pattern = document.getElementById('recurrencePattern').value;
+    
+    // For daily, just select all days 0-6
+    const recurrenceDays = pattern === 'daily' ? [0,1,2,3,4,5,6] : checkedDays;
+    
+    const data = {
+        title: document.getElementById('title').value,
+        estimatedDuration: document.getElementById('estimatedDuration').value,
+        priority: document.getElementById('priority').value,
+        category: document.getElementById('category').value,
+        deadline: document.getElementById('deadline').value || undefined,
+        description: document.getElementById('description').value,
+        dependsOn: document.getElementById('dependsOn').value || undefined,
+        isRecurring: pattern !== 'none',
+        recurrencePattern: pattern,
+        recurrenceDays: recurrenceDays
+    };
+
+    try {
+        const res = await fetch('/api/tasks', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (res.ok) {
+            window.location.href = '/dashboard';
+        } else {
+            const errData = await res.json();
+            alert('Error adding task: ' + errData.message);
+        }
+    } catch (err) {
+        console.error(err);
+    }
+});
+</script>

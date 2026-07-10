@@ -1,0 +1,67 @@
+<div class="flex items-center justify-center h-[80vh]" data-aos="fade-up">
+    <div class="glass p-8 max-w-md w-full">
+        <h2 class="text-3xl font-bold mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">Welcome Back</h2>
+        <p class="text-slate-400 mb-8 text-center">Login to your AI Time Manager</p>
+        
+        <form action="/api/auth/login" method="POST">
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">Email</label>
+                <input type="email" name="email" class="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2 focus:outline-none focus:border-indigo-500 transition-colors" required>
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-1">Password</label>
+                <input type="password" name="password" class="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2 focus:outline-none focus:border-indigo-500 transition-colors" required>
+            </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300">
+                    <span id="submit-text">Login</span>
+                </button>
+                
+                <div class="relative flex items-center justify-center w-full mt-6 border border-t border-slate-700">
+                    <div class="absolute px-5 bg-slate-900 text-slate-400 text-sm">or</div>
+                </div>
+
+                <a href="/api/auth/google" class="mt-6 flex items-center justify-center w-full bg-white hover:bg-slate-100 text-slate-800 font-medium py-2 px-4 rounded-lg transition-colors duration-300">
+                    <img src="https://developers.google.com/identity/images/g-logo.png" class="w-5 h-5 mr-3" alt="Google">
+                    Continue with Google
+                </a>
+            </form>
+        
+        <div id="auth-toggle-text" class="mt-6 text-center text-sm text-slate-400">
+            Don't have an account? 
+            <a href="#" onclick="toggleMode()" class="text-indigo-400 hover:text-indigo-300">Sign up</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleMode() {
+        const form = document.querySelector('form');
+        const title = document.querySelector('h2');
+        const isLogin = form.getAttribute('action') === '/api/auth/login';
+        const submitBtn = document.querySelector('button[type="submit"]');
+        const toggleText = document.getElementById('auth-toggle-text');
+        
+        if (isLogin) {
+            form.setAttribute('action', '/api/auth/register');
+            title.innerText = 'Create Account';
+            
+            // Add Name field
+            const nameField = document.createElement('div');
+            nameField.className = 'mb-4 name-field';
+            nameField.innerHTML = `
+                <label class="block text-sm font-medium mb-1">Name</label>
+                <input type="text" name="name" class="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2 focus:outline-none focus:border-indigo-500 transition-colors" required>
+            `;
+            form.insertBefore(nameField, form.firstChild);
+            
+            submitBtn.innerText = 'Sign Up';
+            toggleText.innerHTML = `Already have an account? <a href="#" onclick="toggleMode()" class="text-indigo-400 hover:text-indigo-300">Login</a>`;
+        } else {
+            form.setAttribute('action', '/api/auth/login');
+            title.innerText = 'Welcome Back';
+            document.querySelector('.name-field').remove();
+            submitBtn.innerText = 'Login';
+            toggleText.innerHTML = `Don't have an account? <a href="#" onclick="toggleMode()" class="text-indigo-400 hover:text-indigo-300">Sign up</a>`;
+        }
+    }
+</script>

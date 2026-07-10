@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%- typeof title != 'undefined' ? title : 'Time Manager AI' %></title>
+    
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3063/3063822.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            900: 'var(--slate-900, #0f172a)',
+                            800: 'var(--slate-800, #1e293b)',
+                            700: 'var(--slate-700, #334155)',
+                            600: 'var(--slate-600, #475569)',
+                            400: 'var(--slate-400, #94a3b8)',
+                            100: 'var(--slate-100, #f1f5f9)',
+                        },
+                        indigo: {
+                            600: 'var(--indigo-600, #4f46e5)',
+                            500: 'var(--indigo-500, #6366f1)',
+                            400: 'var(--indigo-400, #818cf8)',
+                        },
+                        emerald: {
+                            600: 'var(--emerald-600, #059669)',
+                            500: 'var(--emerald-500, #10b981)',
+                            400: 'var(--emerald-400, #34d399)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass {
+                @apply bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm rounded-xl;
+            }
+        }
+    </style>
+    <style>
+    <style>
+        html[data-theme="light"] body {
+            --slate-900: #f8fafc;
+            --slate-800: #ffffff;
+            --slate-700: #e2e8f0;
+            --slate-600: #cbd5e1;
+            --slate-400: #64748b;
+            --slate-100: #0f172a;
+            --indigo-600: #4f46e5;
+            --indigo-500: #4338ca;
+            --indigo-400: #3730a3;
+        }
+    </style>
+    
+    <script>
+        const savedTheme = localStorage.getItem('app-theme') || 'dark';
+        if (savedTheme !== 'dark') {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+        
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', theme);
+            }
+            localStorage.setItem('app-theme', theme);
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 antialiased min-h-screen flex flex-col">
+    
+    <%- include('navbar') %>
+
+    <main class="flex-grow container mx-auto px-4 py-8 relative">
+        <%- body %>
+    </main>
+
+    <% if (typeof user != 'undefined') { %>
+    <div id="chatbot-container" class="fixed bottom-4 left-4 z-50 flex flex-col items-start transition-all duration-300">
+        <div id="chatbot-window" class="hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl rounded-xl w-80 mb-4 overflow-hidden transform scale-95 opacity-0 transition-all duration-300">
+            <div class="bg-indigo-600 px-4 py-3 flex justify-between items-center text-white">
+                <span class="font-medium flex items-center"><i class="fa-solid fa-robot mr-2"></i> AI Assistant</span>
+                <button onclick="toggleChat()" class="hover:text-indigo-200">&times;</button>
+            </div>
+            <div id="chat-messages" class="p-4 h-64 overflow-y-auto flex flex-col space-y-3 text-sm">
+                <div class="bg-slate-100 dark:bg-slate-700 self-start p-2 rounded-lg rounded-tl-none max-w-[85%] text-slate-800 dark:text-slate-200">
+                    Hello! Tell me what you need to do, and I'll schedule it. (e.g. "Prepare a presentation for 45 mins")
+                </div>
+            </div>
+            <div class="p-3 border-t border-slate-200 dark:border-slate-700 flex bg-slate-50 dark:bg-slate-900">
+                <input type="text" id="chat-input" placeholder="Type here..." class="flex-1 bg-transparent focus:outline-none text-slate-800 dark:text-white text-sm" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                <button onclick="sendChatMessage()" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 ml-2"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <button id="chatbot-toggle" onclick="toggleChat()" class="w-14 h-14 bg-indigo-600 hover:bg-indigo-500 rounded-full shadow-lg flex items-center justify-center text-white text-xl transition-transform hover:scale-110">
+            <i class="fa-solid fa-message"></i>
+        </button>
+    </div>
+    <% } %>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+        
+        // Request Desktop Notifications
+        if (Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+
+        // Initialize Socket
+        const socket = io();
+        
+        socket.on('reminder', (data) => {
+            showToast(data);
+            
+            // Native Desktop Notification
+            if (Notification.permission === "granted") {
+                new Notification("TimeManager AI Reminder", {
+                    body: data.message,
+                    icon: "https://cdn-icons-png.flaticon.com/512/3063/3063822.png" // Placeholder clock icon
+                });
+            }
+        });
+
+        function showToast(data) {
+            const toastId = 'toast-' + Math.random().toString(36).substr(2, 9);
+            const toast = document.createElement('div');
+            toast.id = toastId;
+            toast.className = 'fixed bottom-4 right-4 bg-slate-800 border border-indigo-500 text-white p-4 rounded-lg shadow-2xl z-50 transition-all duration-300 transform translate-y-0 w-80';
+            
+            toast.innerHTML = `
+                <div class="flex justify-between items-start mb-3">
+                    <div class="font-semibold text-indigo-400">Reminder</div>
+                    <button onclick="document.getElementById('${toastId}').remove()" class="text-slate-400 hover:text-white">&times;</button>
+                </div>
+                <div class="text-sm mb-4">${data.message}</div>
+                <div class="flex space-x-2">
+                    <button onclick="handleTaskAction('${data.taskId}', 'delay', '${toastId}')" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white text-xs py-2 rounded transition-colors">Delay 15m</button>
+                    <button onclick="handleTaskAction('${data.taskId}', 'complete', '${toastId}')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs py-2 rounded transition-colors">Complete</button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            
+            // Auto remove after 15s for interactive toasts
+            setTimeout(() => {
+                if(document.getElementById(toastId)) {
+                    document.getElementById(toastId).classList.add('opacity-0', 'translate-y-2');
+                    setTimeout(() => document.getElementById(toastId)?.remove(), 300);
+                }
+            }, 15000);
+        }
+
+        async function handleTaskAction(taskId, action, toastId) {
+            if (!taskId) return;
+            
+            try {
+                if (action === 'complete') {
+                    await fetch(`/api/tasks/${taskId}/status`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'Completed' })
+                    });
+                } else if (action === 'delay') {
+                    await fetch(`/api/tasks/${taskId}/delay`, {
+                        method: 'POST'
+                    });
+                }
+                document.getElementById(toastId).remove();
+                window.location.reload();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Chatbot Logic
+        function toggleChat() {
+            const win = document.getElementById('chatbot-window');
+            if (win.classList.contains('hidden')) {
+                win.classList.remove('hidden');
+                setTimeout(() => win.classList.remove('scale-95', 'opacity-0'), 10);
+            } else {
+                win.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => win.classList.add('hidden'), 300);
+            }
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if(!text) return;
+            
+            const messages = document.getElementById('chat-messages');
+            
+            // Add user message
+            messages.innerHTML += `<div class="bg-indigo-600 self-end p-2 rounded-lg rounded-tr-none max-w-[85%] text-white">${text}</div>`;
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+
+            // Loading state
+            const loadingId = 'loading-' + Date.now();
+            messages.innerHTML += `<div id="${loadingId}" class="bg-slate-700 self-start p-2 rounded-lg rounded-tl-none text-slate-400 italic">Thinking...</div>`;
+            messages.scrollTop = messages.scrollHeight;
+
+            try {
+                const res = await fetch('/api/tasks/chatbot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+                
+                const data = await res.json();
+                document.getElementById(loadingId).remove();
+
+                if(data.success) {
+                    messages.innerHTML += `<div class="bg-emerald-600 self-start p-2 rounded-lg rounded-tl-none max-w-[85%] text-white">Added "${data.task.title}" to your schedule! Refreshing...</div>`;
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    messages.innerHTML += `<div class="bg-red-500 self-start p-2 rounded-lg rounded-tl-none max-w-[85%] text-white">Error: ${data.message}</div>`;
+                }
+            } catch(e) {
+                document.getElementById(loadingId).remove();
+                messages.innerHTML += `<div class="bg-red-500 self-start p-2 rounded-lg rounded-tl-none max-w-[85%] text-white">Connection error.</div>`;
+            }
+            messages.scrollTop = messages.scrollHeight;
+        }
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('Service Worker registered', reg))
+                    .catch(err => console.log('Service Worker registration failed: ', err));
+            });
+        }
+    </script>
+</body>
+</html>

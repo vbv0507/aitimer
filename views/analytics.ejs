@@ -1,0 +1,66 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="max-w-5xl mx-auto" data-aos="fade-up">
+    <div class="flex items-center mb-8">
+        <i class="fa-solid fa-chart-pie text-3xl text-indigo-400 mr-4"></i>
+        <h2 class="text-3xl font-semibold">Productivity Analytics</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="glass p-6 text-center border-emerald-500/30">
+            <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Tasks Completed</h3>
+            <div class="text-4xl font-bold text-emerald-600 dark:text-emerald-400"><%= completed %></div>
+        </div>
+        <div class="glass p-6 text-center border-indigo-500/30">
+            <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Focus Time</h3>
+            <div class="text-4xl font-bold text-indigo-600 dark:text-indigo-400"><%= Math.floor(focusTime / 60) %>h <%= focusTime % 60 %>m</div>
+        </div>
+        <div class="glass p-6 text-center border-orange-500/30">
+            <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Tasks Pending</h3>
+            <div class="text-4xl font-bold text-orange-600 dark:text-orange-400"><%= pending %></div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="glass p-6">
+            <h3 class="text-lg font-medium mb-4 text-center">Task Status Distribution</h3>
+            <div class="relative h-64 w-full">
+                <canvas id="taskChart"></canvas>
+            </div>
+        </div>
+        <div class="glass p-6 flex flex-col justify-center items-center">
+            <h3 class="text-lg font-medium mb-4 text-center">Productivity Score</h3>
+            <div class="relative w-48 h-48 rounded-full border-8 border-slate-200 dark:border-slate-700 flex items-center justify-center">
+                <% 
+                   const total = completed + pending; 
+                   const score = total === 0 ? 0 : Math.round((completed / total) * 100);
+                %>
+                <div class="absolute inset-0 rounded-full border-8 border-indigo-500" style="clip-path: polygon(0 0, 100% 0, 100% <%= score %>%, 0 <%= score %>%);"></div>
+                <div class="text-5xl font-bold text-slate-800 dark:text-white z-10"><%= score %><span class="text-2xl">%</span></div>
+            </div>
+            <p class="mt-4 text-slate-500 dark:text-slate-400 text-sm">Based on completed vs scheduled tasks</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ctx = document.getElementById('taskChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Completed', 'Pending'],
+            datasets: [{
+                data: [<%= completed %>, <%= pending %>],
+                backgroundColor: ['#10b981', '#f97316'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { color: document.documentElement.getAttribute('data-theme') === 'light' ? '#475569' : '#cbd5e1' } }
+            }
+        }
+    });
+</script>
