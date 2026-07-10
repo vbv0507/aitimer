@@ -68,7 +68,85 @@ async function parseTaskFromText(text) {
     }
 }
 
+async function agenticScheduleGeneration(tasks, userSettings, baseDate) {
+    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.includes('your_gemini')) {
+        throw new Error('Gemini API key is not configured.');
+    }
+
+    const { GoogleGenerativeAI } = require("@google/generative-ai");
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    
+    // We use gemini-2.5-flash for function calling support
+    const model = genAI.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        tools: [{
+            functionDeclarations: [{
+                name: "commit_schedule",
+                description: "Commit the final optimized daily schedule to the database.",
+                parameters: {
+                    type: "OBJECT",
+                    properties: {
+                        timeline: {
+                            type: "ARRAY",
+                            description: "The list of scheduled items in chronological order.",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    taskId: { type: "STRING", description: "The MongoDB ID of the task (omit for breaks/lunch)" },
+                                    title: { type: "STRING", description: "Title of the task, Break, or Lunch" },
+                                    startTime: { type: "STRING", description: "ISO 8601 date string for start time" },
+                                    endTime: { type: "STRING", description: "ISO 8601 date string for end time" },
+                                    type: { type: "STRING", description: "'Task', 'Break', or 'Lunch'" }
+                                },
+                                required: ["title", "startTime", "endTime", "type"]
+                            }
+                        }
+                    },
+                    required: ["timeline"]
+                }
+            }]
+        }]
+    });
+
+    const prompt = `
+You are an expert executive assistant AI. Your job is to create an optimized daily schedule for the user based on their pending tasks and constraints.
+You MUST call the "commit_schedule" function with your final timeline.
+
+Constraints:
+- Base Date (Today): ${baseDate.toISOString()}
+- Working Hours: ${userSettings.start} to ${userSettings.end}
+- Lunch Break: Starts at ${userSettings.lunchBreakStart} and lasts ${userSettings.lunchBreakDuration} minutes.
+- Buffer Time: Add ${userSettings.bufferTime} minutes of buffer between consecutive tasks.
+
+Pending Tasks (JSON format):
+${JSON.stringify(tasks, null, 2)}
+
+Instructions:
+1. Schedule high priority and critical tasks earlier in the day.
+2. Respect "dependsOn" relationships (a task must be scheduled AFTER the task it depends on).
+3. Do not schedule tasks during the Lunch Break. Add a "Lunch" item to the timeline.
+4. Do not exceed the working hours. If some low-priority tasks cannot fit, omit them from today's timeline.
+5. Provide the exact ISO string timestamps for startTime and endTime for every timeline item based on ${baseDate.toISOString().split('T')[0]}.
+`;
+
+    try {
+        const result = await model.generateContent(prompt);
+        const call = result.response.functionCalls()?.[0];
+        
+        if (call && call.name === "commit_schedule") {
+            return call.args.timeline;
+        } else {
+            console.error("AI did not call commit_schedule. Fallback required.");
+            return null; // Let the caller handle fallback
+        }
+    } catch (error) {
+        console.error("Agentic Scheduling Error:", error);
+        return null;
+    }
+}
+
 module.exports = {
     generateAIInsights,
-    parseTaskFromText
+    parseTaskFromText,
+    agenticScheduleGeneration
 };

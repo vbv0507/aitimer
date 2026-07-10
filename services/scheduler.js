@@ -3,12 +3,7 @@ const Schedule = require('../models/Schedule');
 const User = require('../models/User');
 const { parse, addMinutes, isBefore, isAfter, setHours, setMinutes, format } = require('date-fns');
 
-const priorityWeights = {
-    'Critical': 4,
-    'High': 3,
-    'Medium': 2,
-    'Low': 1
-};
+const { agenticScheduleGeneration } = require('./aiService');
 
 async function generateDailySchedule(userId, dateStr) {
     const user = await User.findById(userId);
@@ -52,89 +47,14 @@ async function generateDailySchedule(userId, dateStr) {
         isRecurring: false // Don't schedule the parent recurring template itself
     }).sort({ createdAt: 1 });
 
-    tasks.sort((a, b) => {
-        if (priorityWeights[a.priority] !== priorityWeights[b.priority]) {
-            return priorityWeights[b.priority] - priorityWeights[a.priority];
-        }
-        if (a.deadline && b.deadline) {
-            return new Date(a.deadline) - new Date(b.deadline);
-        }
-        if (a.deadline) return -1;
-        if (b.deadline) return 1;
-        
-        return a.estimatedDuration - b.estimatedDuration;
-    });
-
-    const taskMap = new Map();
-    tasks.forEach(t => taskMap.set(t._id.toString(), t));
+    const aiTimeline = await agenticScheduleGeneration(tasks, user.settings, baseDate);
     
-    const sortedTasks = [];
-    const visited = new Set();
-    const visiting = new Set();
-
-    function visit(task) {
-        if (!task) return;
-        const id = task._id.toString();
-        if (visited.has(id)) return;
-        if (visiting.has(id)) return; // Ignore circular dependencies
-        
-        visiting.add(id);
-        
-        if (task.dependsOn) {
-            const depTask = taskMap.get(task.dependsOn.toString());
-            if (depTask) visit(depTask);
-        }
-        
-        visiting.delete(id);
-        visited.add(id);
-        sortedTasks.push(task);
-    }
-
-    tasks.forEach(t => visit(t));
-    tasks = sortedTasks;
-
-    const timeline = [];
-
-    const startHourStr = user.workingHours.start || '09:00';
-    const endHourStr = user.workingHours.end || '17:00';
+    let timeline = [];
     
-    let currentTime = setMinutes(setHours(baseDate, parseInt(startHourStr.split(':')[0])), parseInt(startHourStr.split(':')[1]));
-    const endTime = setMinutes(setHours(baseDate, parseInt(endHourStr.split(':')[0])), parseInt(endHourStr.split(':')[1]));
-
-    const lunchStartStr = user.settings.lunchBreakStart || '12:00';
-    const lunchStart = setMinutes(setHours(baseDate, parseInt(lunchStartStr.split(':')[0])), parseInt(lunchStartStr.split(':')[1]));
-    const lunchEnd = addMinutes(lunchStart, user.settings.lunchBreakDuration || 60);
-    const buffer = user.settings.bufferTime || 15;
-
-    let lunchAdded = false;
-
-    for (let task of tasks) {
-        if (!lunchAdded && isAfter(currentTime, lunchStart) || (isBefore(currentTime, lunchStart) && isAfter(addMinutes(currentTime, task.estimatedDuration), lunchStart))) {
-            timeline.push({
-                title: 'Lunch Break',
-                startTime: lunchStart,
-                endTime: lunchEnd,
-                type: 'Lunch'
-            });
-            currentTime = lunchEnd;
-            lunchAdded = true;
-        }
-
-        const taskEndTime = addMinutes(currentTime, task.estimatedDuration);
-        
-        if (isAfter(taskEndTime, endTime)) {
-            break; 
-        }
-
-        timeline.push({
-            taskId: task._id,
-            title: task.title,
-            startTime: currentTime,
-            endTime: taskEndTime,
-            type: 'Task'
-        });
-
-        currentTime = addMinutes(taskEndTime, buffer);
+    if (aiTimeline && Array.isArray(aiTimeline)) {
+        timeline = aiTimeline;
+    } else {
+        console.error("AI returned null schedule. Using empty schedule fallback.");
     }
 
     const scheduleDate = setHours(setMinutes(baseDate, 0), 0);
