@@ -82,6 +82,38 @@
             </button>
         </form>
     </div>
+
+    <div class="glass p-8 mt-8" data-aos="fade-up" data-aos-delay="100">
+        <h3 class="text-xl font-semibold mb-4 text-slate-800 dark:text-white">All Tasks</h3>
+        <% if(typeof allTasks !== 'undefined' && allTasks.length > 0) { %>
+            <div class="space-y-3">
+                <% allTasks.forEach(t => { %>
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg flex justify-between items-center">
+                        <div>
+                            <div class="font-medium text-slate-800 dark:text-white <%= t.status === 'Completed' ? 'line-through text-slate-400 dark:text-slate-500' : '' %>">
+                                <%= t.title %>
+                            </div>
+                            <div class="text-xs text-slate-500 mt-1 flex items-center space-x-2">
+                                <span><i class="fa-solid fa-clock mr-1"></i><%= t.estimatedDuration %>m</span>
+                                <span>&bull;</span>
+                                <span><%= t.priority %></span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="px-3 py-1 text-xs font-medium rounded-full 
+                                <%= t.status === 'Completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 
+                                    t.status === 'Delayed' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 
+                                    'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400' %>">
+                                <%= t.status %>
+                            </span>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <p class="text-slate-500 dark:text-slate-400 text-sm">No tasks added yet.</p>
+        <% } %>
+    </div>
 </div>
 
 <style>

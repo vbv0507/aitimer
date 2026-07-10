@@ -100,6 +100,10 @@
     </div>
     <% } %>
 
+    <button id="pwa-install-btn" class="hidden fixed bottom-4 right-24 z-50 bg-indigo-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-indigo-500 transition-colors flex items-center text-sm font-medium">
+        <i class="fa-solid fa-download mr-2"></i> Install App
+    </button>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
@@ -239,6 +243,29 @@
                     .catch(err => console.log('Service Worker registration failed: ', err));
             });
         }
+
+        // PWA Install Prompt Logic
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            deferredPrompt = e;
+            // Update UI notify the user they can install the PWA
+            const installBtn = document.getElementById('pwa-install-btn');
+            if (installBtn) installBtn.classList.remove('hidden');
+        });
+
+        document.getElementById('pwa-install-btn')?.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    document.getElementById('pwa-install-btn').classList.add('hidden');
+                }
+                deferredPrompt = null;
+            }
+        });
     </script>
 </body>
 </html>

@@ -102,8 +102,20 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ minutes: customMinutes })
             });
+
+            // Ask if they want to complete the task
+            if (confirm("Did you finish this task? Click OK to mark it as complete and remove it from your pending tasks.")) {
+                await fetch(`/api/tasks/${taskId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'Completed' })
+                });
+                alert("Task marked as completed!");
+                // Optionally reload to update dropdown
+                window.location.reload();
+            }
         } catch(e) {
-            console.error("Failed to log focus time");
+            console.error("Failed to log focus time or complete task");
         }
     }
 </script>

@@ -7,7 +7,8 @@
         <span class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">TimeManager</span>
     </div>
     
-    <div class="flex items-center space-x-6">
+    <!-- Desktop Navigation -->
+    <div class="hidden md:flex items-center space-x-6">
         <div class="relative group flex items-center h-full py-2">
             <button class="text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white flex items-center transition-colors">
                 <i class="fa-solid fa-palette mr-2"></i> Theme
@@ -40,5 +41,31 @@
             </div>
         </div>
     </div>
+
+    <!-- Mobile Navigation Toggle -->
+    <div class="md:hidden flex items-center space-x-4">
+        <div class="w-8 h-8 rounded-full bg-slate-800 dark:bg-slate-200 flex items-center justify-center text-white dark:text-slate-900 font-bold shadow-sm text-sm">
+            <%= user.name.charAt(0).toUpperCase() %>
+        </div>
+        <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="text-slate-600 dark:text-slate-300 focus:outline-none">
+            <i class="fa-solid fa-bars text-2xl"></i>
+        </button>
+    </div>
 </nav>
+
+<!-- Mobile Menu -->
+<div id="mobile-menu" class="hidden md:hidden glass mx-4 mt-2 p-4 flex flex-col space-y-4 z-40 relative">
+    <a href="/dashboard" class="text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white"><i class="fa-solid fa-chart-pie mr-2"></i> Dashboard</a>
+    <a href="/planner" class="text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white"><i class="fa-solid fa-list-check mr-2"></i> Tasks</a>
+    <a href="/focus" class="text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white"><i class="fa-solid fa-stopwatch mr-2"></i> Focus</a>
+    <a href="/analytics" class="text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white"><i class="fa-solid fa-chart-line mr-2"></i> Analytics</a>
+    <a href="/settings" class="text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white"><i class="fa-solid fa-gear mr-2"></i> Settings</a>
+    <div class="border-t border-slate-200 dark:border-slate-700 pt-4 flex justify-between items-center">
+        <div>
+            <button onclick="setTheme('dark')" class="text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white mr-4"><i class="fa-solid fa-moon text-lg"></i></button>
+            <button onclick="setTheme('light')" class="text-slate-600 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400"><i class="fa-solid fa-sun text-lg"></i></button>
+        </div>
+        <a href="/api/auth/logout" class="text-red-500 hover:text-red-600"><i class="fa-solid fa-right-from-bracket mr-2"></i>Logout</a>
+    </div>
+</div>
 <% } %>

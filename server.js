@@ -74,7 +74,8 @@ app.get('/dashboard', protect, async (req, res) => {
 });
 app.get('/planner', protect, async (req, res) => {
     const tasks = await Task.find({ userId: req.user._id, status: { $in: ['Pending', 'Delayed'] }, isRecurring: false });
-    res.render('planner', { title: 'AI Daily Planner', user: req.user, tasks });
+    const allTasks = await Task.find({ userId: req.user._id }).sort({ createdAt: -1 });
+    res.render('planner', { title: 'AI Daily Planner', user: req.user, tasks, allTasks });
 });
 app.get('/calendar', protect, (req, res) => res.render('calendar', { title: 'Calendar', user: req.user }));
 
